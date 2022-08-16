@@ -1,15 +1,21 @@
 import os
 import re
 
-str = 'netstat -aon|findstr "8887"'
-res = os.popen(cmd=str).read()  # 查看被占用端口对应的 PID
-print(res)
-res = res.strip()
-pattern = re.compile('LISTENING(.*)$')
-data = re.findall(pattern, res)[0]
-print(data.strip())
 
-# str2 = 'taskkill /T /F /PID 839924'
-# print(os.popen(cmd=str2).read())
-
-input()
+def closeport():
+    port = input("请输入将禁用的端口号")
+    searchpid = f'netstat -aon|findstr "{port}"'
+    res = os.popen(cmd=searchpid).read().strip()  # 查看被占用端口对应的 PID
+    pattern = re.compile('LISTENING(.*)$')
+    data = re.findall(pattern, res)
+    if not data:
+        print('该端口未被占用')
+        return
+    pid = data[0].strip()
+    usercheck = input('该端口的进程为 ' + pid + ' ,确定将其杀死?(y/n)')
+    if usercheck == 'y':
+        killpid = f'taskkill /T /F /PID {pid}'
+        print(os.popen(cmd=killpid).read())
+    else:
+        print('已撤销操作')
+        return
